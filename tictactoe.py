@@ -71,7 +71,10 @@ def check_win(player):
             draw_vertical_winning_line(col,player)
             return True
         
-    #horizontal win check
+    #Qu'est-ce que c'est ? Fonction qui horizontal win check
+    #Pourquoi c'est là ? Fonction dans le main car petit projet
+    #Explication : Pour chaque ligne dans mon tableau BOARD_ROWS, je vérifie si ma première ligne [0], ma seconde ligne [1] et ma troisième ligne [2] sont remplies.
+    #Si c'est le cas, je retourne vrai, sinon je retourne faux
     for row in range(BOARD_ROWS):
         if board[row][0] == player and board[row][1] == player and board[row][2] == player:
             draw_horizontal_winning_line(row,player)
