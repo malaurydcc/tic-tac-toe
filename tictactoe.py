@@ -13,7 +13,7 @@ CIRCLE_RADIUS = SQUARE_SIZE//3
 CIRCLE_WIDTH = 15
 CROSS_WIDTH = 25
 SPACE = SQUARE_SIZE//4
-RED = (255,0,0)
+BLACK = (0,0,0)
 BG_COLOR = (200,160,230)
 LINE_COLOR = (170,140,210)
 CIRCLE_COLOR = (239,231,200)
@@ -75,6 +75,8 @@ def check_win(player):
     #Pourquoi c'est là ? Fonction dans le main car petit projet
     #Explication : Pour chaque ligne dans mon tableau BOARD_ROWS, je vérifie si ma première ligne [0], ma seconde ligne [1] et ma troisième ligne [2] sont remplies.
     #Si c'est le cas, je retourne vrai, sinon je retourne faux
+
+    #horizontal win check
     for row in range(BOARD_ROWS):
         if board[row][0] == player and board[row][1] == player and board[row][2] == player:
             draw_horizontal_winning_line(row,player)
@@ -141,32 +143,52 @@ draw_lines()
 player = 1
 game_over = False
 
-#mainloop (if we click the exit button, it quit the app)
+#Fonction pour afficher le texte de fin de partie
+def display_end_screen(message):
+    font = pygame.font.Font(None, 60)  # Choisir une police et une taille
+    text_message = font.render(message, True, BLACK)
+    text_restart = font.render("Press 'R' to Restart", True, BLACK)
+    text_quit = font.render("Press 'Q' to Quit", True, BLACK)
+
+    #Calcul des positions pour centrer le texte
+    screen.blit(text_message, (WIDTH // 2 - text_message.get_width() // 2, HEIGHT // 2 - 100))
+    screen.blit(text_restart, (WIDTH // 2 - text_restart.get_width() // 2, HEIGHT // 2 - 50))
+    screen.blit(text_quit, (WIDTH // 2 - text_quit.get_width() // 2, HEIGHT // 2 + 10))
+
+#Mainloop
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
 
-#checking if clicking the screen to execute if clicked
         if event.type == pygame.MOUSEBUTTONDOWN and not game_over:
-
-            mouseX = event.pos[0] #x coordinate
-            mouseY = event.pos[1] #y coordinate
+            mouseX = event.pos[0]  # x coordinate
+            mouseY = event.pos[1]  # y coordinate
 
             clicked_row = int(mouseY // SQUARE_SIZE)
             clicked_col = int(mouseX // SQUARE_SIZE)
 
-            if available_square(clicked_row,clicked_col):
-                mark_square(clicked_row,clicked_col,player)
+            if available_square(clicked_row, clicked_col):
+                mark_square(clicked_row, clicked_col, player)
                 if check_win(player):
                     game_over = True
+                    winner_message = f"Player {player} Wins!"
+                elif is_board_full():
+                    game_over = True
+                    winner_message = "Game Over!"
                 player = player % 2 + 1
 
                 draw_figures()
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r:
-                restart() 
+                restart()
                 game_over = False
+
+            if event.key == pygame.K_q:
+                quit()
+
+    if game_over:
+        display_end_screen(winner_message)
 
     pygame.display.update()
