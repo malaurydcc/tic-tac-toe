@@ -1,194 +1,223 @@
+# Importation des modules nécessaires
 import pygame, sys 
-import numpy as np
+import numpy as np  # Utilisé pour manipuler le tableau de jeu
 
-pygame.init()
+pygame.init()  # Initialise tous les modules Pygame
 
+# Définition des dimensions de la fenêtre
 WIDTH = 600
 HEIGHT = 600
-LINE_WIDTH = 15
-BOARD_ROWS = 3
-BOARD_COLS = 3
-SQUARE_SIZE = WIDTH//BOARD_COLS
-CIRCLE_RADIUS = SQUARE_SIZE//3
-CIRCLE_WIDTH = 15
-CROSS_WIDTH = 25
-SPACE = SQUARE_SIZE//4
-BLACK = (0,0,0)
-BG_COLOR = (200,160,230)
-LINE_COLOR = (170,140,210)
-CIRCLE_COLOR = (239,231,200)
-CROSS_COLOR = (66,66,66)
+LINE_WIDTH = 15  # Épaisseur des lignes du plateau de jeu
+BOARD_ROWS = 3  # Nombre de lignes du plateau
+BOARD_COLS = 3  # Nombre de colonnes du plateau
+SQUARE_SIZE = WIDTH // BOARD_COLS  # Taille d'une case du plateau (chaque côté)
+CIRCLE_RADIUS = SQUARE_SIZE // 3  # Rayon du cercle qui sera dessiné pour un joueur
+CIRCLE_WIDTH = 15  # Épaisseur des cercles
+CROSS_WIDTH = 25  # Épaisseur des croix
+SPACE = SQUARE_SIZE // 4  # Espace entre les traits des croix et les bords des cases
+BLACK = (66,66,66)  # Couleur noire pour les croix et les textes
+BG_COLOR = (200,160,230)  # Couleur de fond du plateau
+LINE_COLOR = (170,140,210)  # Couleur des lignes du plateau
+CIRCLE_COLOR = (239,231,200)  # Couleur des cercles (joueur 1)
+CROSS_COLOR = (66,66,66)  # Couleur des croix (joueur 2)
 
+# Création de la fenêtre Pygame avec les dimensions spécifiées
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption('TIC TAC TOE')
-screen.fill(BG_COLOR)
+pygame.display.set_caption('TIC TAC TOE')  # Définition du titre de la fenêtre
+screen.fill(BG_COLOR)  # Remplit l'écran avec la couleur de fond
 
-#board
-board = np.zeros((BOARD_ROWS,BOARD_ROWS))
-#print(board)
+# Initialisation du tableau de jeu (plateau de 3x3, rempli de zéros)
+board = np.zeros((BOARD_ROWS, BOARD_ROWS))
 
-#pygame.draw.line(screen,RED,(10, 10),(300,300),10)
+# Fonction pour dessiner les lignes du plateau
 def draw_lines():
-    #1 horizontal line
-    pygame.draw.line(screen,LINE_COLOR,(0,SQUARE_SIZE),(WIDTH,SQUARE_SIZE),LINE_WIDTH)
-    #2 horizontal line
-    pygame.draw.line(screen,LINE_COLOR,(0,2*SQUARE_SIZE),(WIDTH,2*SQUARE_SIZE),LINE_WIDTH)
+    # Première ligne horizontale
+    pygame.draw.line(screen, LINE_COLOR, (0, SQUARE_SIZE), (WIDTH, SQUARE_SIZE), LINE_WIDTH)
+    # Deuxième ligne horizontale
+    pygame.draw.line(screen, LINE_COLOR, (0, 2 * SQUARE_SIZE), (WIDTH, 2 * SQUARE_SIZE), LINE_WIDTH)
+    
+    # Première ligne verticale
+    pygame.draw.line(screen, LINE_COLOR, (SQUARE_SIZE, 0), (SQUARE_SIZE, HEIGHT), LINE_WIDTH)
+    # Deuxième ligne verticale
+    pygame.draw.line(screen, LINE_COLOR, (2 * SQUARE_SIZE, 0), (2 * SQUARE_SIZE, HEIGHT), LINE_WIDTH)
 
-    #1 vertical line
-    pygame.draw.line(screen,LINE_COLOR,(SQUARE_SIZE,0),(SQUARE_SIZE,HEIGHT),LINE_WIDTH)
-    #2 vertical line
-    pygame.draw.line(screen,LINE_COLOR,(2*SQUARE_SIZE,0),(2*SQUARE_SIZE,HEIGHT),LINE_WIDTH)
-
+# Fonction pour dessiner les figures (cercles et croix) sur le plateau
 def draw_figures():
     for row in range(BOARD_ROWS):
         for col in range(BOARD_COLS):
-            if board[row][col] == 1:
-                pygame.draw.circle(screen,CIRCLE_COLOR,(int(col*SQUARE_SIZE+SQUARE_SIZE//2),int(row*SQUARE_SIZE+SQUARE_SIZE//2)),CIRCLE_RADIUS,CIRCLE_WIDTH)
-            elif board[row][col] == 2:
-                pygame.draw.line(screen,CROSS_COLOR,(col*SQUARE_SIZE+SPACE,row*SQUARE_SIZE+SQUARE_SIZE-SPACE),(col*SQUARE_SIZE+SQUARE_SIZE-SPACE,row*SQUARE_SIZE+SPACE),CROSS_WIDTH)
-                pygame.draw.line(screen,CROSS_COLOR,(col*SQUARE_SIZE+SPACE,row*SQUARE_SIZE+SPACE),(col*SQUARE_SIZE+SQUARE_SIZE-SPACE,row*SQUARE_SIZE+SQUARE_SIZE-SPACE),CROSS_WIDTH)
+            if board[row][col] == 1:  # Si la case est marquée par un cercle
+                pygame.draw.circle(screen, CIRCLE_COLOR, 
+                                   (int(col * SQUARE_SIZE + SQUARE_SIZE // 2), 
+                                    int(row * SQUARE_SIZE + SQUARE_SIZE // 2)), 
+                                   CIRCLE_RADIUS, CIRCLE_WIDTH)
+            elif board[row][col] == 2:  # Si la case est marquée par une croix
+                pygame.draw.line(screen, CROSS_COLOR, 
+                                 (col * SQUARE_SIZE + SPACE, row * SQUARE_SIZE + SQUARE_SIZE - SPACE),
+                                 (col * SQUARE_SIZE + SQUARE_SIZE - SPACE, row * SQUARE_SIZE + SPACE), CROSS_WIDTH)
+                pygame.draw.line(screen, CROSS_COLOR, 
+                                 (col * SQUARE_SIZE + SPACE, row * SQUARE_SIZE + SPACE),
+                                 (col * SQUARE_SIZE + SQUARE_SIZE - SPACE, row * SQUARE_SIZE + SQUARE_SIZE - SPACE), CROSS_WIDTH)
 
-def mark_square(row,col,player):
+# Fonction pour marquer une case avec le joueur actuel (1 pour cercle, 2 pour croix)
+def mark_square(row, col, player):
     board[row][col] = player
 
-#Return True if square available and False is not
-def available_square(row,col):
+# Fonction pour vérifier si une case est disponible
+def available_square(row, col):
     return board[row][col] == 0
 
-#Return True if board full and False is not
+# Fonction pour vérifier si le plateau est plein
 def is_board_full():
     for row in range(BOARD_ROWS):
         for col in range(BOARD_COLS):
-            if board[row][col] == 0:
+            if board[row][col] == 0:  # Si une case est vide, le plateau n'est pas plein
                 return False
-            
     return True
 
+# Fonction pour vérifier si un joueur a gagné
 def check_win(player):
-    #vertical win check
+    # Vérification des colonnes pour une victoire
     for col in range(BOARD_COLS):
         if board[0][col] == player and board[1][col] == player and board[2][col] == player:
-            draw_vertical_winning_line(col,player)
+            draw_vertical_winning_line(col, player)  # Dessine la ligne de victoire
             return True
         
-    #Qu'est-ce que c'est ? Fonction qui horizontal win check
-    #Pourquoi c'est là ? Fonction dans le main car petit projet
-    #Explication : Pour chaque ligne dans mon tableau BOARD_ROWS, je vérifie si ma première ligne [0], ma seconde ligne [1] et ma troisième ligne [2] sont remplies.
-    #Si c'est le cas, je retourne vrai, sinon je retourne faux
-
-    #horizontal win check
+    # Vérification des lignes pour une victoire
     for row in range(BOARD_ROWS):
         if board[row][0] == player and board[row][1] == player and board[row][2] == player:
-            draw_horizontal_winning_line(row,player)
+            draw_horizontal_winning_line(row, player)
             return True
         
-    #ascending diagonal win check
-    if board[2][0] == player and board [1][1] == player and board [0][2] == player:
+    # Vérification de la diagonale ascendante
+    if board[2][0] == player and board[1][1] == player and board[0][2] == player:
         draw_asc_winning_diagonal(player)
         return True
     
-    #descending diagonal win check
-    if board[0][0] == player and board [1][1] == player and board [2][2] == player:
+    # Vérification de la diagonale descendante
+    if board[0][0] == player and board[1][1] == player and board[2][2] == player:
         draw_desc_diagonal(player)
         return True
     
     return False
 
-def draw_vertical_winning_line(col,player):
-    posX = col*SQUARE_SIZE+SQUARE_SIZE//2
+# Fonction pour dessiner une ligne verticale en cas de victoire
+def draw_vertical_winning_line(col, player):
+    posX = col * SQUARE_SIZE + SQUARE_SIZE // 2
+    color = CIRCLE_COLOR if player == 1 else CROSS_COLOR
+    pygame.draw.line(screen, color, (posX, 15), (posX, HEIGHT - 15), 15)
 
-    if player == 1:
-        color = CIRCLE_COLOR
-    elif player == 2:
-        color = CROSS_COLOR
+# Fonction pour dessiner une ligne horizontale en cas de victoire
+def draw_horizontal_winning_line(row, player):
+    posY = row * SQUARE_SIZE + SQUARE_SIZE // 2
+    color = CIRCLE_COLOR if player == 1 else CROSS_COLOR
+    pygame.draw.line(screen, color, (15, posY), (WIDTH - 15, posY), 15)
 
-    pygame.draw.line(screen,color,(posX,15),(posX,HEIGHT-15),15)
-
-def draw_horizontal_winning_line(row,player):
-    posY=row*SQUARE_SIZE+SQUARE_SIZE//2
-
-    if player == 1:
-        color = CIRCLE_COLOR
-    elif player == 2:
-        color = CROSS_COLOR
-
-    pygame.draw.line(screen, color,(15,posY),(WIDTH-15,posY),15)
-
+# Fonction pour dessiner une diagonale ascendante en cas de victoire
 def draw_asc_winning_diagonal(player):
-    if player == 1:
-        color = CIRCLE_COLOR
-    elif player == 2:
-        color = CROSS_COLOR
+    color = CIRCLE_COLOR if player == 1 else CROSS_COLOR
+    pygame.draw.line(screen, color, (15, HEIGHT - 15), (WIDTH - 15, 15), 15)
 
-    pygame.draw.line(screen,color,(15,HEIGHT-15),(WIDTH-15,15),15)
-
+# Fonction pour dessiner une diagonale descendante en cas de victoire
 def draw_desc_diagonal(player):
-    if player == 1:
-        color = CIRCLE_COLOR
-    elif player == 2:
-        color = CROSS_COLOR
+    color = CIRCLE_COLOR if player == 1 else CROSS_COLOR
+    pygame.draw.line(screen, color, (15, 15), (WIDTH - 15, HEIGHT - 15), 15)
 
-    pygame.draw.line(screen,color,(15,15),(WIDTH-15,HEIGHT-15),15)
-
+# Fonction pour redémarrer le jeu (réinitialiser le plateau)
 def restart():
     screen.fill(BG_COLOR)
     draw_lines()
-    player = 1
     for row in range(BOARD_ROWS):
         for col in range(BOARD_COLS):
             board[row][col] = 0
 
-draw_lines()
+draw_lines()  # Dessine les lignes au début du jeu
+player = 1  # Le joueur 1 commence (cercles)
+game_over = False  # Statut du jeu, à vrai si la partie est terminée
 
-player = 1
-game_over = False
+# Fonction pour afficher l'écran de fin de jeu (gagnant ou match nul)
+def display_end_screen(player):
+    screen.fill(BG_COLOR)
+    font = pygame.font.Font(None, 60)
+    small_font = pygame.font.Font(None, 40)
+    
+    if player == 1 or player == 2:  # Si un joueur a gagné
+        text_message = font.render("Winner!", True, BLACK)
+        screen.blit(text_message, (WIDTH // 2 - text_message.get_width() // 2, HEIGHT // 2 + 50))
+        if player == 1:
+            pygame.draw.circle(screen, CIRCLE_COLOR, (WIDTH // 2, HEIGHT // 2 - 30), CIRCLE_RADIUS, CIRCLE_WIDTH)
+        elif player == 2:
+            pygame.draw.line(screen, CROSS_COLOR, (WIDTH // 2 - SQUARE_SIZE // 2 + SPACE, HEIGHT // 2 - 30 + SQUARE_SIZE // 2 - SPACE),
+                             (WIDTH // 2 + SQUARE_SIZE // 2 - SPACE, HEIGHT // 2 - 30 - SQUARE_SIZE // 2 + SPACE), CROSS_WIDTH)
+            pygame.draw.line(screen, CROSS_COLOR, (WIDTH // 2 - SQUARE_SIZE // 2 + SPACE, HEIGHT // 2 - 30 - SQUARE_SIZE // 2 + SPACE),
+                             (WIDTH // 2 + SQUARE_SIZE // 2 - SPACE, HEIGHT // 2 - 30 + SQUARE_SIZE // 2 - SPACE), CROSS_WIDTH)
 
-#Fonction pour afficher le texte de fin de partie
-def display_end_screen(message):
-    font = pygame.font.Font(None, 60)  # Choisir une police et une taille
-    text_message = font.render(message, True, BLACK)
-    text_restart = font.render("Press 'R' to Restart", True, BLACK)
-    text_quit = font.render("Press 'Q' to Quit", True, BLACK)
+        # Affiche les instructions "Press 'R' to Restart" et "Press 'Q' to Quit"
+        text_restart = small_font.render("Press 'R' to Restart", True, BLACK)
+        text_quit = small_font.render("Press 'Q' to Quit", True, BLACK)
+        # Affiche le texte centré sur l'écran pour les options de redémarrage et de quitter
+        screen.blit(text_restart, (WIDTH // 2 - text_restart.get_width() // 2, HEIGHT // 2 + 100))  # Rapproche encore
+        screen.blit(text_quit, (WIDTH // 2 - text_quit.get_width() // 2, HEIGHT // 2 + 140))  # Rapproche encore
 
-    #Calcul des positions pour centrer le texte
-    screen.blit(text_message, (WIDTH // 2 - text_message.get_width() // 2, HEIGHT // 2 - 100))
-    screen.blit(text_restart, (WIDTH // 2 - text_restart.get_width() // 2, HEIGHT // 2 - 50))
-    screen.blit(text_quit, (WIDTH // 2 - text_quit.get_width() // 2, HEIGHT // 2 + 10))
+    else:  # Affichage en cas de match nul
+        text_message = font.render("Game Over", True, BLACK)
+            # Affiche "Game Over" au centre de l'écran
+        screen.blit(text_message, (WIDTH // 2 - text_message.get_width() // 2, HEIGHT // 2 + 50))
 
-#Mainloop
+
+        # Dessine un cercle plus petit à gauche pour représenter l'égalité
+        pygame.draw.circle(screen, CIRCLE_COLOR, (WIDTH // 2 - 80, HEIGHT // 2 - 50), CIRCLE_RADIUS - 15, CIRCLE_WIDTH)  # Réduit le rayon et déplace plus haut
+
+        # Dessine une croix à droite du cercle pour représenter l'égalité
+        pygame.draw.line(screen, CROSS_COLOR, (WIDTH // 2 + 80 - SQUARE_SIZE // 2 + SPACE, HEIGHT // 2 - 50 - SQUARE_SIZE // 2 + SPACE), 
+                         (WIDTH // 2 + 80 + SQUARE_SIZE // 2 - SPACE, HEIGHT // 2 - 50 + SQUARE_SIZE // 2 - SPACE), CROSS_WIDTH)
+        pygame.draw.line(screen, CROSS_COLOR, (WIDTH // 2 + 80 - SQUARE_SIZE // 2 + SPACE, HEIGHT // 2 - 50 + SQUARE_SIZE // 2 - SPACE), 
+                         (WIDTH // 2 + 80 + SQUARE_SIZE // 2 - SPACE, HEIGHT // 2 - 50 - SQUARE_SIZE // 2 + SPACE), CROSS_WIDTH)
+
+        # Affiche à nouveau les instructions pour redémarrer ou quitter
+        text_restart = small_font.render("Press 'R' to Restart", True, BLACK)
+        text_quit = small_font.render("Press 'Q' to Quit", True, BLACK)
+        screen.blit(text_restart, (WIDTH // 2 - text_restart.get_width() // 2, HEIGHT // 2 + 100))
+        screen.blit(text_quit, (WIDTH // 2 - text_quit.get_width() // 2, HEIGHT // 2 + 140))
+
+# Mise à jour de la boucle principale pour utiliser la logique de gestion des événements
 while True:
+    # Parcourt tous les événements possibles
     for event in pygame.event.get():
+        # Si l'utilisateur ferme la fenêtre
         if event.type == pygame.QUIT:
             sys.exit()
 
+        # Si un clic de souris est détecté et que la partie n'est pas terminée
         if event.type == pygame.MOUSEBUTTONDOWN and not game_over:
-            mouseX = event.pos[0]  # x coordinate
-            mouseY = event.pos[1]  # y coordinate
+            mouseX = event.pos[0]  # Coordonnée x
+            mouseY = event.pos[1]  # Coordonnée y
 
-            clicked_row = int(mouseY // SQUARE_SIZE)
-            clicked_col = int(mouseX // SQUARE_SIZE)
+            clicked_row = int(mouseY // SQUARE_SIZE) # Calcule la ligne cliquée
+            clicked_col = int(mouseX // SQUARE_SIZE) # Calcule la colonne cliquée
 
+            # Si la case cliquée est libre
             if available_square(clicked_row, clicked_col):
-                mark_square(clicked_row, clicked_col, player)
-                if check_win(player):
-                    game_over = True
-                    winner_message = f"Player {player} Wins!"
-                elif is_board_full():
-                    game_over = True
-                    winner_message = "Game Over!"
-                player = player % 2 + 1
+                mark_square(clicked_row, clicked_col, player) # Marque la case avec le joueur actuel
+                if check_win(player): # Vérifie si le joueur a gagné
+                    game_over = True # Indique que la partie est terminée
+                    winner_message = player  # Enregistre le joueur gagnant (1 pour cercle, 2 pour croix)
+                elif is_board_full():  # Vérifie si toutes les cases sont remplies (match nul)
+                    game_over = True # Indique que la partie est terminée
+                    winner_message = "Draw"  # Aucun gagnant, c'est un match nul
+                player = player % 2 + 1 # Change de joueur (1 ou 2)
 
-                draw_figures()
+                draw_figures() # Redessine les figures (croix ou cercle) sur le plateau
 
+        # Si une touche est appuyée
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r:
                 restart()
-                game_over = False
+                game_over = False # Réinitialise l'état de fin de partie
 
             if event.key == pygame.K_q:
                 quit()
 
     if game_over:
-        display_end_screen(winner_message)
+        display_end_screen(winner_message)  # Affiche l'écran de fin de partie (victoire ou match nul)
 
-    pygame.display.update()
+    pygame.display.update() # Rafraîchit l'écran pour refléter les changements
