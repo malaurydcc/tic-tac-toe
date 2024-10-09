@@ -1,19 +1,20 @@
 # Importation des modules nécessaires
-import pygame, sys 
+import pygame, sys  # Utilisé pour les éléments graphiques, sys pour quitter le programme
 import numpy as np  # Utilisé pour manipuler le tableau de jeu
 
 pygame.init()  # Initialise tous les modules Pygame
 
+# CONSTANTS
 # Définition des dimensions de la fenêtre
 WIDTH = 600
 HEIGHT = 600
-LINE_WIDTH = 15  # Épaisseur des lignes du plateau de jeu
+LINE_WIDTH = 15  # Épaisseur des lignes du plateau
 BOARD_ROWS = 3  # Nombre de lignes du plateau
 BOARD_COLS = 3  # Nombre de colonnes du plateau
-SQUARE_SIZE = WIDTH // BOARD_COLS  # Taille d'une case du plateau (chaque côté)
-CIRCLE_RADIUS = SQUARE_SIZE // 3  # Rayon du cercle qui sera dessiné pour un joueur
-CIRCLE_WIDTH = 15  # Épaisseur des cercles
-CROSS_WIDTH = 25  # Épaisseur des croix
+SQUARE_SIZE = WIDTH // BOARD_COLS  # Taille d'une case du plateau
+CIRCLE_RADIUS = SQUARE_SIZE // 3  # Rayon du cercle
+CIRCLE_WIDTH = 15  # Épaisseur du cercle
+CROSS_WIDTH = 25  # Épaisseur de la croix
 SPACE = SQUARE_SIZE // 4  # Espace entre les traits des croix et les bords des cases
 BLACK = (66,66,66)  # Couleur noire pour les croix et les textes
 BG_COLOR = (200,160,230)  # Couleur de fond du plateau
@@ -21,10 +22,10 @@ LINE_COLOR = (170,140,210)  # Couleur des lignes du plateau
 CIRCLE_COLOR = (239,231,200)  # Couleur des cercles (joueur 1)
 CROSS_COLOR = (66,66,66)  # Couleur des croix (joueur 2)
 
-# Création de la fenêtre Pygame avec les dimensions spécifiées
+# Création de la fenêtre Pygame 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption('TIC TAC TOE')  # Définition du titre de la fenêtre
-screen.fill(BG_COLOR)  # Remplit l'écran avec la couleur de fond
+pygame.display.set_caption('TIC TAC TOE')
+screen.fill(BG_COLOR)
 
 # Initialisation du tableau de jeu (plateau de 3x3, rempli de zéros)
 board = np.zeros((BOARD_ROWS, BOARD_ROWS))
@@ -154,7 +155,7 @@ def display_end_screen(player):
         # Affiche les instructions "Press 'R' to Restart" et "Press 'Q' to Quit"
         text_restart = small_font.render("Press 'R' to Restart", True, BLACK)
         text_quit = small_font.render("Press 'Q' to Quit", True, BLACK)
-        # Affiche le texte centré sur l'écran pour les options de redémarrage et de quitter
+        # Affiche le texte centré sur l'écran 
         screen.blit(text_restart, (WIDTH // 2 - text_restart.get_width() // 2, HEIGHT // 2 + 100))  # Rapproche encore
         screen.blit(text_quit, (WIDTH // 2 - text_quit.get_width() // 2, HEIGHT // 2 + 140))  # Rapproche encore
 
@@ -164,7 +165,7 @@ def display_end_screen(player):
         screen.blit(text_message, (WIDTH // 2 - text_message.get_width() // 2, HEIGHT // 2 + 50))
 
 
-        # Dessine un cercle plus petit à gauche pour représenter l'égalité
+        # Dessine un cercle à gauche pour représenter l'égalité
         pygame.draw.circle(screen, CIRCLE_COLOR, (WIDTH // 2 - 80, HEIGHT // 2 - 50), CIRCLE_RADIUS - 15, CIRCLE_WIDTH)  # Réduit le rayon et déplace plus haut
 
         # Dessine une croix à droite du cercle pour représenter l'égalité
@@ -173,13 +174,13 @@ def display_end_screen(player):
         pygame.draw.line(screen, CROSS_COLOR, (WIDTH // 2 + 80 - SQUARE_SIZE // 2 + SPACE, HEIGHT // 2 - 50 + SQUARE_SIZE // 2 - SPACE), 
                          (WIDTH // 2 + 80 + SQUARE_SIZE // 2 - SPACE, HEIGHT // 2 - 50 - SQUARE_SIZE // 2 + SPACE), CROSS_WIDTH)
 
-        # Affiche à nouveau les instructions pour redémarrer ou quitter
+        # Afficher les instructions pour redémarrer ou quitter
         text_restart = small_font.render("Press 'R' to Restart", True, BLACK)
         text_quit = small_font.render("Press 'Q' to Quit", True, BLACK)
         screen.blit(text_restart, (WIDTH // 2 - text_restart.get_width() // 2, HEIGHT // 2 + 100))
         screen.blit(text_quit, (WIDTH // 2 - text_quit.get_width() // 2, HEIGHT // 2 + 140))
 
-# Mise à jour de la boucle principale pour utiliser la logique de gestion des événements
+# Mainloop
 while True:
     # Parcourt tous les événements possibles
     for event in pygame.event.get():
@@ -187,7 +188,7 @@ while True:
         if event.type == pygame.QUIT:
             sys.exit()
 
-        # Si un clic de souris est détecté et que la partie n'est pas terminée
+        # Si un clic de souris est détecté
         if event.type == pygame.MOUSEBUTTONDOWN and not game_over:
             mouseX = event.pos[0]  # Coordonnée x
             mouseY = event.pos[1]  # Coordonnée y
@@ -203,7 +204,7 @@ while True:
                     winner_message = player  # Enregistre le joueur gagnant (1 pour cercle, 2 pour croix)
                 elif is_board_full():  # Vérifie si toutes les cases sont remplies (match nul)
                     game_over = True # Indique que la partie est terminée
-                    winner_message = "Draw"  # Aucun gagnant, c'est un match nul
+                    winner_message = "Game Over"  # Aucun gagnant (un match nul)
                 player = player % 2 + 1 # Change de joueur (1 ou 2)
 
                 draw_figures() # Redessine les figures (croix ou cercle) sur le plateau
